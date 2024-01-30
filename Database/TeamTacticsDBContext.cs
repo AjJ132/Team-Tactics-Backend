@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Team_Tactics_Backend.Models.DB_Testing;
+using Team_Tactics_Backend.Models.Users;
+using Team_Tactics_Backend.Models.Teams;
 
 namespace Team_Tactics_Backend.Database
 {
@@ -12,7 +13,9 @@ namespace Team_Tactics_Backend.Database
         {
         }
 
-        public virtual DbSet<DBTesting> DBTestings { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Team> Teams { get; set; }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

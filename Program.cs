@@ -17,6 +17,8 @@ builder.Services.AddDbContextFactory<TeamTacticsDBContext>(options =>
     options.UseSqlServer(
         configuration.GetConnectionString("DefaultConnection")));
 
+//Ensure created 
+
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<TeamTacticsDBContext>();
 
