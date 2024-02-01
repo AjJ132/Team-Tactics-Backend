@@ -22,6 +22,26 @@ builder.Services.AddDbContextFactory<TeamTacticsDBContext>(options =>
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<TeamTacticsDBContext>();
 
+// builder.Services.AddAuthentication(options =>
+// {
+//     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+// })
+// .AddCookie(options =>
+// {
+//     options.LoginPath = "/login"; // Your login path
+//     options.LogoutPath = "/logout"; // Your logout path
+
+//     // Set SameSite and Secure Policy
+//     options.Cookie.Name = "Authorization";
+//     options.Cookie.SameSite = SameSiteMode.None; // Set SameSite to None
+//     options.Cookie.HttpOnly = true; // Set HttpOnly to true
+//     options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Set SecurePolicy to Always
+//     options.ExpireTimeSpan = TimeSpan.FromDays(5); // Set cookie expiration
+// });
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyAllowSpecificOrigins",
