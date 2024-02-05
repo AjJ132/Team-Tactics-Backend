@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using Team_Tactics_Backend.Database;
-using Team_Tactics_Backend.Models.Users;
+using TeamTacticsBackend.Database;
+using TeamTacticsBackend.Models.Users;
 
 namespace Team_Tactics_Backend.Controllers
 {

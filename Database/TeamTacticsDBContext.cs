@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Team_Tactics_Backend.Models.Users;
-using Team_Tactics_Backend.Models.Teams;
+using TeamTacticsBackend.Models.Users;
+using TeamTacticsBackend.Models.Teams;
 using TeamTacticsBackend.Models.CalendarEvents;
 
-namespace Team_Tactics_Backend.Database
+namespace TeamTacticsBackend.Database
 {
     public class TeamTacticsDBContext : IdentityDbContext
     {

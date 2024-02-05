@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Team_Tactics_Backend.Models.Users;
-using Team_Tactics_Backend.Database;
+using TeamTacticsBackend.Models.Users;
+using TeamTacticsBackend.Database;
 using Microsoft.AspNetCore.Authorization;
 using System.Globalization;
 using Team_Tactics_Backend.DTO;
@@ -19,10 +19,10 @@ namespace Team_Tactics_Backend.CalendarControllers
     [Route("[controller]")]
     public class CalendarController : ControllerBase
     {
-        private readonly UserManager<User> usermanager;
+        private readonly UserManager<IdentityUser> usermanager;
         private readonly IDbContextFactory<TeamTacticsDBContext> contextFactory;
 
-        public CalendarController(UserManager<User> UserManager, IDbContextFactory<TeamTacticsDBContext> contextFactory)
+        public CalendarController(UserManager<IdentityUser> UserManager, IDbContextFactory<TeamTacticsDBContext> contextFactory)
         {
             this.usermanager = UserManager;
             this.contextFactory = contextFactory;
@@ -135,12 +135,10 @@ namespace Team_Tactics_Backend.CalendarControllers
             }
         }
 
-
-        
         //Update calendar event
-        [HttpPut("calendar/{EventId: Guid}")]
+        [HttpPut("calendar/{EventId}")]
         [Authorize]
-         public async Task<IActionResult> UpdateCalendarEvent(Guid EventId, [FromBody] ReturnCalendarEventDTO model)
+         public async Task<IActionResult> UpdateCalendarEvent([FromQuery] Guid EventID, [FromBody] ReturnCalendarEventDTO model)
         {
             try{
                 using (var db = contextFactory.CreateDbContext())
@@ -171,9 +169,9 @@ namespace Team_Tactics_Backend.CalendarControllers
         }
 
         //delete calendar event
-        [HttpDelete("calendar/{EventId: Guid}")]
+        [HttpDelete("calendar/{EventId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteCalendarEvent(Guid EventID, [FromBody] ReturnCalendarEventDTO model){
+        public async Task<IActionResult> DeleteCalendarEvent([FromQuery] Guid EventID, [FromBody] ReturnCalendarEventDTO model){
              try{
                 using (var db = contextFactory.CreateDbContext())
                {
@@ -199,9 +197,9 @@ namespace Team_Tactics_Backend.CalendarControllers
         }
 
          //display calendar events
-          [HttpGet("Calendar/{Guid EventId}")]
+          [HttpGet("Calendar/{EventId}")]
         [Authorize]
-        public async Task<IActionResult> GetCalendarEvent(Guid EventID, [FromBody] ReturnCalendarEventDTO model){
+        public async Task<IActionResult> GetCalendarEvent([FromQuery]Guid EventID, [FromBody] ReturnCalendarEventDTO model){
             try{
                 using (var db = contextFactory.CreateDbContext())
                {
