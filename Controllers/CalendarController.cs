@@ -38,6 +38,8 @@ namespace Team_Tactics_Backend.CalendarControllers
                 //Get the current user
                 var identUser = await usermanager.GetUserAsync(User);
 
+               
+
                 if (identUser == null)
                 {
                     return BadRequest("User not found");
