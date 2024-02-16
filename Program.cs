@@ -12,10 +12,29 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//-------------------------------------------------------------
+//To swap between SQL Server and PostgreSQL, comment out the other and uncomment the one you want to use and then go edit Team-Tactics-Backend.csproj and comment out the Npgsql and uncomment the SQL Server package
+//if you would like to use the postgresql server, start docker and then run the autorun.sh or autrun.bat file in Database/Docker folder of this project. username and password details are in the docker file
+//!!IMPORTANT!!
+
 //US: DBA , PS: Capstone123 <- - this is the password for the database server
+// builder.Services.AddDbContextFactory<TeamTacticsDBContext>(options =>
+//     options.UseSqlServer(
+//         configuration.GetConnectionString("AzureSQLConnection")));
+
 builder.Services.AddDbContextFactory<TeamTacticsDBContext>(options =>
-    options.UseSqlServer(
-        configuration.GetConnectionString("DefaultConnection")));
+options.UseNpgsql(
+configuration.GetConnectionString("DefaultConnection"),
+npgsqlOptionsAction: npgsqlOptions =>
+{
+    npgsqlOptions.EnableRetryOnFailure(
+        maxRetryCount: 5,
+        maxRetryDelay: TimeSpan.FromSeconds(30),
+        errorCodesToAdd: null);
+}));
+
+//!!IMPORTANT!!
+//-------------------------------------------------------------
 
 //Ensure created 
 
@@ -77,7 +96,6 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseCors("MyAllowSpecificOrigins");
-
 
 app.MapIdentityApi<IdentityUser>();
 
