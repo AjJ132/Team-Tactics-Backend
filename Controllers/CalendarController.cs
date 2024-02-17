@@ -6,13 +6,13 @@ using TeamTacticsBackend.Models.Users;
 using TeamTacticsBackend.Database;
 using Microsoft.AspNetCore.Authorization;
 using System.Globalization;
-using Team_Tactics_Backend.DTO;
+using TeamTacticsBackend.DTO;
 using TeamTacticsBackend.Models.CalendarEvents;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 
-namespace Team_Tactics_Backend.CalendarControllers
+namespace TeamTacticsBackend.CalendarControllers
 {
 
     [ApiController]
@@ -38,7 +38,7 @@ namespace Team_Tactics_Backend.CalendarControllers
                 //Get the current user
                 var identUser = await usermanager.GetUserAsync(User);
 
-               
+
 
                 if (identUser == null)
                 {
@@ -140,72 +140,79 @@ namespace Team_Tactics_Backend.CalendarControllers
         //Update calendar event
         [HttpPut("calendar/{EventId}")]
         [Authorize]
-         public async Task<IActionResult> UpdateCalendarEvent([FromQuery] Guid EventID, [FromBody] ReturnCalendarEventDTO model)
+        public async Task<IActionResult> UpdateCalendarEvent([FromQuery] Guid EventID, [FromBody] ReturnCalendarEventDTO model)
         {
-            try{
+            try
+            {
                 using (var db = contextFactory.CreateDbContext())
-               {
-                 //Get the calendar event
+                {
+                    //Get the calendar event
                     var events = await db.CalendarEvents.FirstOrDefaultAsync(u => u.EventId == model.EventId);
 
                     if (events == null)
                     {
                         return BadRequest("Event not found");
                     }
-                    
+
                     //update the calendar event
-                        events.Title = model.Title;
-                        events.Description = model.Description;
-                        events.StartDate = model.StartDate;
-                        events.EndDate = model.EndDate;
-                        events.Color = model.Color;
-                        await db.SaveChangesAsync();
-               }
-               }
-            catch(Exception ex){
-                    Debug.WriteLine(ex.Message);
+                    events.Title = model.Title;
+                    events.Description = model.Description;
+                    events.StartDate = model.StartDate;
+                    events.EndDate = model.EndDate;
+                    events.Color = model.Color;
+                    await db.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
 
             }
-             return Ok();
+            return Ok();
         }
 
         //delete calendar event
         [HttpDelete("calendar/{EventId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteCalendarEvent([FromQuery] Guid EventID, [FromBody] ReturnCalendarEventDTO model){
-             try{
+        public async Task<IActionResult> DeleteCalendarEvent([FromQuery] Guid EventID, [FromBody] ReturnCalendarEventDTO model)
+        {
+            try
+            {
                 using (var db = contextFactory.CreateDbContext())
-               {
-                 //Get the calendar event
+                {
+                    //Get the calendar event
                     var events = await db.CalendarEvents.FirstOrDefaultAsync(u => u.EventId == model.EventId);
 
                     if (events == null)
                     {
                         return BadRequest("Event not found");
                     }
-                    
+
                     //delete the calendar event
-                        db.CalendarEvents.Remove(events);
-                        await db.SaveChangesAsync();
-               }
-               }
-            catch(Exception ex){
-                    Debug.WriteLine(ex.Message);
+                    db.CalendarEvents.Remove(events);
+                    await db.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
 
             }
-             return Ok();
+            return Ok();
         }
 
-         //display calendar events
-          [HttpGet("Calendar/{EventId}")]
+        //display calendar events
+        [HttpGet("Calendar/{EventId}")]
         [Authorize]
-        public async Task<IActionResult> GetCalendarEvent([FromQuery]Guid EventID, [FromBody] ReturnCalendarEventDTO model){
-            try{
+        public async Task<IActionResult> GetCalendarEvent([FromQuery] Guid EventID, [FromBody] ReturnCalendarEventDTO model)
+        {
+            try
+            {
                 using (var db = contextFactory.CreateDbContext())
-               {
-                 //Get the calendar event
+                {
+                    //Get the calendar event
                     var events = await db.CalendarEvents.FirstOrDefaultAsync(u => u.EventId == model.EventId);
 
                     if (events == null)
@@ -213,10 +220,11 @@ namespace Team_Tactics_Backend.CalendarControllers
                         return BadRequest("Event not found");
                     }
                     return Ok(events);
-               }
-               }
-            catch(Exception ex){
-                    Debug.WriteLine(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
 
             }

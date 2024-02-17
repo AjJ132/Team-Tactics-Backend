@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>Team_Tactics_Backend</RootNamespace>
+    <RootNamespace>TeamTacticsBackend</RootNamespace>
     <UserSecretsId>10381acd-b3d4-4af3-a1cd-9add9248c1ba</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>

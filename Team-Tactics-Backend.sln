@@ -5,8 +5,6 @@ VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Team-Tactics-Backend", "Team-Tactics-Backend.csproj", "{4936D18B-AC0E-44C6-B6FE-4DE686ABF1F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TT-Backend-Testing", "TT-Backend-Testing\TT-Backend-Testing.csproj", "{034B7468-B2DD-479F-A9AF-F4511C61EACE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
