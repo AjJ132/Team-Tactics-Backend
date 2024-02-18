@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Team_Tactics_Backend.Models.Teams;
+namespace TeamTacticsBackend.Models.Teams;
 
 public class Team
 {

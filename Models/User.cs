@@ -3,7 +3,7 @@
 using System.ComponentModel.DataAnnotations;
 using TeamTacticsBackend.Models.CalendarEvents;
 
-namespace Team_Tactics_Backend.Models.Users
+namespace TeamTacticsBackend.Models.Users
 {
 
 public class User

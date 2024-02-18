@@ -1,4 +1,4 @@
-namespace Team_Tactics_Backend.DTO
+namespace TeamTacticsBackend.DTO
 {
     public class ReturnCalendarEventDTO
     {
