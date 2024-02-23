@@ -38,6 +38,7 @@ npgsqlOptionsAction: npgsqlOptions =>
 
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<TeamTacticsDBContext>();
 
 //change cookie name
@@ -58,6 +59,21 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdministratorRole",
+        policy => policy.RequireRole("Admin"));
+
+    options.AddPolicy("RequireCoachRole",
+        policy => policy.RequireRole("Coach"));
+
+    options.AddPolicy("RequireAssistantCoachRole",
+        policy => policy.RequireRole("AssistantCoach"));
+
+    options.AddPolicy("RequireAthleteRole",
+        policy => policy.RequireRole("Athlete"));
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -67,6 +83,7 @@ if (app.Environment.IsDevelopment())
     {
         var services = scope.ServiceProvider;
         var context = services.GetRequiredService<TeamTacticsDBContext>();
+        await CreateRoles(services);
         context.Database.EnsureCreated();
     }
     app.UseSwagger();
@@ -89,3 +106,19 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+
+//Add roles here
+static async Task CreateRoles(IServiceProvider serviceProvider)
+{
+    var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    string[] roleNames = { "Admin", "Coach", "AssistantCoach", "Athlete" };
+    foreach (var roleName in roleNames)
+    {
+        var roleExist = await RoleManager.RoleExistsAsync(roleName);
+        if (!roleExist)
+        {
+            await RoleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+}
