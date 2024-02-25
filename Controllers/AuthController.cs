@@ -195,6 +195,22 @@ namespace TeamTacticsBackend.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpPost("signout")]
+        public async Task<IActionResult> Signout()
+        {
+            try
+            {
+                //sign out user
+                await _signInManager.SignOutAsync();
+                return Ok("User signed out");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 
 }
