@@ -101,7 +101,8 @@ namespace TeamTacticsBackend.Controllers
                 }
                 else
                 {
-                    return BadRequest("User not created");
+                    var error = result.Errors;
+                    return BadRequest(error);
                 }
             }
             catch (Exception ex)
