@@ -63,10 +63,6 @@ namespace TeamTacticsBackend.CalendarControllers
                     var startDateUtc = startDate.ToUniversalTime();
                     var endDateUtc = endDate.ToUniversalTime();
 
-                    Debug.WriteLine("Model Start Date: " + model.StartDate);
-                    Debug.WriteLine("Model End Date: " + model.EndDate);
-                
-
                     //Create the calendar event
                     var calendarEvent = new CalendarEvent
                     {
@@ -75,17 +71,14 @@ namespace TeamTacticsBackend.CalendarControllers
                         StartDate = startDateUtc,
                         EndDate = endDateUtc,
                         Color = model.Color,
-                        DateCreated = utcNow.DateTime,
+                        DateCreated = DateTime.UtcNow,
                         CreatorId = user.Id
                     };
 
-                    Debug.WriteLine("Model Start Date: " + model.StartDate);
-                    Debug.WriteLine("Model End Date: " + model.EndDate);
-                    Debug.WriteLine("Calendar Event Start Date: " + calendarEvent.StartDate);
-                    Debug.WriteLine("Calendar Event End Date: " + calendarEvent.EndDate);
-
                     //create new GUID
                     calendarEvent.EventId = Guid.NewGuid();
+                    db.CalendarEvents.Add(calendarEvent);
+                    await db.SaveChangesAsync();
 
                     List<EventsAssigned> assignees = new List<EventsAssigned>();
 
@@ -100,31 +93,31 @@ namespace TeamTacticsBackend.CalendarControllers
                             continue;
                         }
 
+
                         EventsAssigned newAssign = new EventsAssigned
                         {
                             EventId = calendarEvent.EventId,
                             AssigneeId = assignedUser.Id,
-                            DateAssigned = DateTime.Now
+                            DateAssigned = DateTime.UtcNow
                         };
 
                         assignees.Add(newAssign);
                     }
 
                     //if add me then add the current user
-                    if (model.assigneMe)
+                    if (model.assignMe == true)
                     {
                         EventsAssigned newAssign = new EventsAssigned
                         {
                             EventId = calendarEvent.EventId,
                             AssigneeId = user.Id,
-                            DateAssigned = DateTime.Now
+                            DateAssigned = DateTime.UtcNow
                         };
 
                         assignees.Add(newAssign);
                     }
 
                     //Add the event to the database
-                    db.CalendarEvents.Add(calendarEvent);
                     db.EventsAssigneds.AddRange(assignees);
 
                     //Save the changes

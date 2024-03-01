@@ -9,6 +9,6 @@ public class NewCalendarEventDTO
     public string StartDate { get; set; }
     public string EndDate { get; set; }
     public string Color { get; set; }
-    public bool assigneMe { get; set; }
+    public bool assignMe { get; set; }
     public List<string> UserIds { get; set; }
 }
