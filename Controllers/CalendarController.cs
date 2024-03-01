@@ -55,16 +55,34 @@ namespace TeamTacticsBackend.CalendarControllers
                         return BadRequest("User not found");
                     }
 
+                    DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+
+                    var startDate = DateTime.Parse(model.StartDate);
+                    var endDate = DateTime.Parse(model.EndDate);
+
+                    var startDateUtc = startDate.ToUniversalTime();
+                    var endDateUtc = endDate.ToUniversalTime();
+
+                    Debug.WriteLine("Model Start Date: " + model.StartDate);
+                    Debug.WriteLine("Model End Date: " + model.EndDate);
+                
+
                     //Create the calendar event
                     var calendarEvent = new CalendarEvent
                     {
                         Title = model.Title,
                         Description = model.Description,
-                        StartDate = model.StartDate,
-                        EndDate = model.EndDate,
+                        StartDate = startDateUtc,
+                        EndDate = endDateUtc,
                         Color = model.Color,
+                        DateCreated = utcNow.DateTime,
                         CreatorId = user.Id
                     };
+
+                    Debug.WriteLine("Model Start Date: " + model.StartDate);
+                    Debug.WriteLine("Model End Date: " + model.EndDate);
+                    Debug.WriteLine("Calendar Event Start Date: " + calendarEvent.StartDate);
+                    Debug.WriteLine("Calendar Event End Date: " + calendarEvent.EndDate);
 
                     //create new GUID
                     calendarEvent.EventId = Guid.NewGuid();
@@ -86,6 +104,19 @@ namespace TeamTacticsBackend.CalendarControllers
                         {
                             EventId = calendarEvent.EventId,
                             AssigneeId = assignedUser.Id,
+                            DateAssigned = DateTime.Now
+                        };
+
+                        assignees.Add(newAssign);
+                    }
+
+                    //if add me then add the current user
+                    if (model.assigneMe)
+                    {
+                        EventsAssigned newAssign = new EventsAssigned
+                        {
+                            EventId = calendarEvent.EventId,
+                            AssigneeId = user.Id,
                             DateAssigned = DateTime.Now
                         };
 
@@ -133,7 +164,7 @@ namespace TeamTacticsBackend.CalendarControllers
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
 

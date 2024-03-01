@@ -11,7 +11,7 @@ public class EventsAssigned
     public int Index { get; set; }
     public Guid EventId { get; set; }
     public string AssigneeId { get; set; }
-    public DateTime DateAssigned { get; set; }
+    public DateTimeOffset DateAssigned { get; set; }
 
     
     
