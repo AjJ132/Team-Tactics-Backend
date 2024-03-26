@@ -28,6 +28,92 @@ namespace TeamTacticsBackend.CalendarControllers
             this.contextFactory = contextFactory;
         }
 
+        //Get my calendar events
+        [HttpGet("myevents")]
+        [Authorize]
+        public async Task<IActionResult> GetMyCalendarEvents()
+        {
+            try
+            {
+                //Get the current user
+                var identUser = await usermanager.GetUserAsync(User);
+
+                if (identUser == null)
+                {
+                    return BadRequest("User not found");
+                }
+
+                using (var db = contextFactory.CreateDbContext())
+                {
+                    //Get the user
+                    var user = await db.Users.FirstOrDefaultAsync(u => u.Id == identUser.Id);
+
+                    if (user == null)
+                    {
+                        return BadRequest("User not found");
+                    }
+
+                    //Get the events assigned to the user
+                    var eventsAssigned = await db.EventsAssigneds.Where(e => e.AssigneeId == user.Id).ToListAsync();
+
+                    List<ReturnCalendarEventDTO> calendarEvents = new List<ReturnCalendarEventDTO>();
+
+                    //Get the events
+                    foreach (var eventAssigned in eventsAssigned)
+                    {
+                        var calendarEvent = await db.CalendarEvents.FirstOrDefaultAsync(e => e.EventId == eventAssigned.EventId);
+
+                        if (calendarEvent == null)
+                        {
+                            Debug.WriteLine("Event not found when getting my events");
+                            continue;
+                        }
+
+                        var creator = await db.Users.FirstOrDefaultAsync(u => u.Id == calendarEvent.CreatorId);
+
+                        //Create the DTO
+                        var calendarEventDTO = new ReturnCalendarEventDTO
+                        {
+                            EventId = calendarEvent.EventId,
+                            Title = calendarEvent.Title,
+                            Description = calendarEvent.Description,
+                            StartDate = calendarEvent.StartDate.DateTime,
+                            EndDate = calendarEvent.EndDate.DateTime,
+                            Color = calendarEvent.Color,
+                            AssigneeName = creator.FirstName + " " + creator.LastName,
+                            AssignedUsers = new List<string>(),
+                            creatorName = creator.FirstName + " " + creator.LastName,
+                            creatorId = user.Id
+                        };
+
+                        //Get the assigned users
+                        var assignedUsers = await db.EventsAssigneds.Where(e => e.EventId == calendarEvent.EventId).ToListAsync();
+
+                        foreach (var assignedUser in assignedUsers)
+                        {
+                            var userAssigned = await db.Users.FirstOrDefaultAsync(u => u.Id == assignedUser.AssigneeId);
+
+                            if (userAssigned == null)
+                            {
+                                Debug.WriteLine("User not found when getting my events");
+                                continue;
+                            }
+                        }
+
+                       //add calendar event to the dto list
+                       calendarEvents.Add(calendarEventDTO);
+                    }
+
+                    return Ok(calendarEvents);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         //Create calendar event
         [HttpPost("create")]
         [Authorize]
@@ -128,8 +214,8 @@ namespace TeamTacticsBackend.CalendarControllers
                     {
                         Title = calendarEvent.Title,
                         Description = calendarEvent.Description,
-                        StartDate = calendarEvent.StartDate,
-                        EndDate = calendarEvent.EndDate,
+                        StartDate = calendarEvent.StartDate.DateTime,
+                        EndDate = calendarEvent.EndDate.DateTime,
                         Color = calendarEvent.Color,
                         AssigneeName = user.FirstName + " " + user.LastName,
                         AssignedUsers = new List<string>()
@@ -228,7 +314,7 @@ namespace TeamTacticsBackend.CalendarControllers
         }
 
         //display calendar events
-        [HttpGet("Calendar/{EventId}")]
+        [HttpGet("calendar/{EventId}")]
         [Authorize]
         public async Task<IActionResult> GetCalendarEvent([FromQuery] Guid EventID, [FromBody] ReturnCalendarEventDTO model)
         {
