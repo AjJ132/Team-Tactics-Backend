@@ -12,11 +12,11 @@ namespace TeamTacticsBackend.Models.CalendarEvents;
         public Guid EventId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public DateTime StartDate {get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTimeOffset StartDate {get; set; }
+        public DateTimeOffset EndDate { get; set; }
         public string Color { get; set; }
         public string CreatorId { get; set; }
-        public DateTime DateCreated { get; set; }
+        public DateTimeOffset DateCreated { get; set; }
 
         public CalendarEvent()
         {
