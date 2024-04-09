@@ -4,6 +4,7 @@ using System;
 using TeamTacticsBackend.Models.Users;
 using TeamTacticsBackend.Models.Teams;
 using TeamTacticsBackend.Models.CalendarEvents;
+using TeamTacticsBackend.Models.Messages;
 
 namespace TeamTacticsBackend.Database
 {
@@ -25,6 +26,9 @@ namespace TeamTacticsBackend.Database
         public virtual DbSet<CalendarEvent> CalendarEvents{get;set;}
 
         public virtual DbSet<EventsAssigned> EventsAssigneds {get;set;}
+        public virtual DbSet<Conversation> Conversations{ get;set;}
+        public virtual DbSet<ConversationMessage> ConversationMessages { get;set;}
+        public virtual DbSet<ConversationUser> ConversationUsers { get;set;}
         
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
