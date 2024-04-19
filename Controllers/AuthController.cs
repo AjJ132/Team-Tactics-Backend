@@ -170,6 +170,11 @@ namespace TeamTacticsBackend.Controllers
                     var identUser = await _userManager.FindByEmailAsync(User.Identity.Name);
                     var user = _context.Users.FirstOrDefault(u => u.Id == identUser.Id);
                     var role = await _userManager.GetRolesAsync(identUser);
+                    
+                    Guid? teamId = user.TeamId;
+
+
+
 
                     UserInfoReturnModel userReturn = new UserInfoReturnModel
                     {
@@ -177,7 +182,8 @@ namespace TeamTacticsBackend.Controllers
                         FirstName = user.FirstName,
                         LastName = user.LastName,
                         Id = user.Id,
-                        role = role[0]
+                        role = role[0],
+                        teamId = teamId
                     };
 
                     //sign the user in

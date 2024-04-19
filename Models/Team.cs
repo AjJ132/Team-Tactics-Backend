@@ -11,8 +11,8 @@ public class Team
     public string TeamSport { get; set; }
     public string TeamCity { get; set; }
     public string TeamState { get; set; }
-    public string TeamJoinCode { get; set; }
-    public DateTime DateCreated { get; set; }
+    public string? TeamJoinCode { get; set; }
+    public DateTimeOffset DateCreated { get; set; }
 
     public Team()
     {

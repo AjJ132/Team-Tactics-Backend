@@ -7,5 +7,6 @@ namespace TeamTacticsBackend.DTO
         public string LastName { get; set; }
         public string Id { get; set; }
         public string role { get; set; }
+        public Guid? teamId { get; set; }
     }
 }
