@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using TeamTacticsBackend.Database;
 using TeamTacticsBackend.DTO.Messages;
 using TeamTacticsBackend.Models.Messages;
@@ -49,12 +50,13 @@ namespace TeamTacticsBackend.Controllers
                 }
 
 
-                //current user id is not included in the list of users
+                //current user id is not included in the list of users.
+                DateTimeOffset utcNow = DateTimeOffset.UtcNow;  
 
                 Conversation newConversation = new Conversation
                 {
                     ConversationId = Guid.NewGuid(),
-                    CreatedAt = DateTimeOffset.Now,
+                    CreatedAt = utcNow, 
                     CreatedBy = Guid.Parse(identityUser.Id)
                 };
 
@@ -68,6 +70,8 @@ namespace TeamTacticsBackend.Controllers
                     newConversation.ConversationName = "";
                 }
 
+              
+
                 //create conversation users
                 List<ConversationUser> conversationUsers = new List<ConversationUser>();
 
@@ -79,10 +83,32 @@ namespace TeamTacticsBackend.Controllers
                         ConversationId = newConversation.ConversationId,
                         UserId = Guid.Parse(userId)
                     });
+
+                   
                 }
 
                 using (var context = contextFactory.CreateDbContext())
                 {
+
+                    if(newConversationDTO.isGroup)
+                    {
+                        newConversation.ConversationName = newConversationDTO.conversationName;
+                    }
+                    else
+                    {
+                        //find user in list of users
+                        var user = await context.Users.FindAsync(newConversationDTO.userIds[0]);
+
+                        if (user != null)
+                        {
+                            newConversation.ConversationName = user.FirstName + " " + user.LastName;
+                        }
+                        else
+                        {
+                            newConversation.ConversationName = "UNKOWN";
+                        }
+                    }
+
                     await context.Conversations.AddAsync(newConversation);
                     await context.ConversationUsers.AddRangeAsync(conversationUsers);
                     await context.SaveChangesAsync();
@@ -92,6 +118,7 @@ namespace TeamTacticsBackend.Controllers
                     ReturnConversationDTO returnConversationDTO = new ReturnConversationDTO
                     {
                         conversationId = newConversation.ConversationId,
+                        conversationName = newConversation.ConversationName,
                         users = new List<ConversationUserDTO>()
                     };
 
@@ -340,6 +367,56 @@ namespace TeamTacticsBackend.Controllers
                 }
 
                 return Ok(returnConversationDTOs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("conversation-users")]
+        public async Task<IActionResult> SearchConversationUsers([FromQuery] string? searchString)
+        {
+            try
+            {
+                //begin searching for users within "users" table and on the same team as the current user
+                using (var context = contextFactory.CreateDbContext())
+                {
+                    var identUser = await usermanager.GetUserAsync(User);
+                    var thisUser = await context.Users.FindAsync(identUser.Id);
+                    var users = context.Users.Where(x => x.TeamId == thisUser.TeamId).AsQueryable();
+
+                    if (users == null)
+                    {
+                        return StatusCode(404, "No users found");
+                    }
+
+                    //apply search string if provided
+                    if (!string.IsNullOrEmpty(searchString))
+                    {
+                        users = users.Where(x => x.FirstName.Contains(searchString) || x.LastName.Contains(searchString));
+                    }
+
+
+                    //remove current user from list
+                    users = users.Where(x => x.Id != identUser.Id);
+
+                    //return users
+                    List<ConversationUserDTO> conversationUserDTOs = new List<ConversationUserDTO>();
+
+                    foreach (var user in users)
+                    {
+                        conversationUserDTOs.Add(new ConversationUserDTO
+                        {
+                            userId = Guid.Parse(user.Id),
+                            userName = user.FirstName + " " + user.LastName
+                        });
+                    }
+
+                    return Ok(conversationUserDTOs);
+                }
+
+
             }
             catch (Exception ex)
             {

@@ -25,6 +25,67 @@ namespace TeamTacticsBackend.Controllers
             _contextFactory = contextFactory;
         }
 
+        [HttpGet("MyTeam")]
+        [Authorize]
+        public async Task<IActionResult> MyTeam()
+        {
+            try
+            {
+                var identityUser = await _userManager.GetUserAsync(User);
+
+                if (identityUser == null)
+                {
+                    return Unauthorized();
+                }
+
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    var user = await context.Users.FirstOrDefaultAsync(u => u.Id == identityUser.Id);
+
+                    if (user.TeamId == Guid.Empty)
+                    {
+                        return NotFound();
+                    }
+
+                    var team = await context.Teams.FirstOrDefaultAsync(t => t.TeamId == user.TeamId);
+
+                    ReturnTeamDTO returnTeam = new ReturnTeamDTO
+                    {
+                        TeamId = team.TeamId,
+                        TeamName = team.TeamName,
+                        TeamSport = team.TeamSport,
+                        TeamCity = team.TeamCity,
+                        TeamState = team.TeamState,
+                        TeamJoinCode = team.TeamJoinCode,
+                        DateCreated = team.DateCreated
+                    };
+
+                    //get all athletes in the team
+                    var teamMembers = await context.Users.Where(u => u.TeamId == team.TeamId).ToListAsync();
+
+                    returnTeam.TeamMembers = teamMembers.Select(u => new TeamMemberDTO
+                    {
+                        userId = new Guid(u.Id),
+                        userName = u.FirstName + " " + u.LastName,
+                    }).ToList();
+
+                    //foreach, get ident user and then get email
+                    foreach (var member in returnTeam.TeamMembers)
+                    {
+                        var identUser = await _userManager.FindByIdAsync(member.userId.ToString());
+                        member.email = identUser.Email;
+                    }
+
+                    return Ok(returnTeam);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(500);
+            }
+        }
+
         //Create\
         [HttpPost("CreateNewTeam")]
         [Authorize]
@@ -161,7 +222,35 @@ namespace TeamTacticsBackend.Controllers
 
                     await context.SaveChangesAsync();
 
-                    return Ok();
+                    //return the updated team
+                    ReturnTeamDTO returnTeam = new ReturnTeamDTO
+                    {
+                        TeamId = team.TeamId,
+                        TeamName = team.TeamName,
+                        TeamSport = team.TeamSport,
+                        TeamCity = team.TeamCity,
+                        TeamState = team.TeamState,
+                        TeamJoinCode = team.TeamJoinCode,
+                        DateCreated = team.DateCreated
+                    };
+
+                    //get all athletes in the team
+                    var teamMembers = await context.Users.Where(u => u.TeamId == team.TeamId).ToListAsync();
+
+                    returnTeam.TeamMembers = teamMembers.Select(u => new TeamMemberDTO
+                    {
+                        userId = new Guid(u.Id),
+                        userName = u.FirstName + " " + u.LastName,
+                    }).ToList();
+
+                    //foreach, get ident user and then get email
+                    foreach (var member in returnTeam.TeamMembers)
+                    {
+                        var identUser = await _userManager.FindByIdAsync(member.userId.ToString());
+                        member.email = identUser.Email;
+                    }
+
+                    return Ok(returnTeam);
                 }
             }
             catch (Exception ex)
@@ -299,7 +388,13 @@ namespace TeamTacticsBackend.Controllers
                         return NotFound();
                     }
 
-                    user.TeamId = Guid.Empty;
+                    //ensure that user is not coach of the team
+                    if (user.Id == team.OwnerId)
+                    {
+                        return BadRequest();
+                    }
+
+                    user.TeamId = null;
 
                     await context.SaveChangesAsync();
 
@@ -366,7 +461,11 @@ namespace TeamTacticsBackend.Controllers
 
                     await context.SaveChangesAsync();
 
-                    return Ok(team.TeamJoinCode);
+                    //return as json
+                    return Ok(new
+                    {
+                        TeamJoinCode = team.TeamJoinCode
+                    });
                 }
             }
             catch (Exception ex)
@@ -413,6 +512,8 @@ namespace TeamTacticsBackend.Controllers
                 return StatusCode(500);
             }
         }
+
+       
     }
 
 }
