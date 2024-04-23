@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Team_Tactics_Backend.Database;
+using TeamTacticsBackend.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -12,24 +12,66 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//-------------------------------------------------------------
+//To swap between SQL Server and PostgreSQL, comment out the other and uncomment the one you want to use and then go edit Team-Tactics-Backend.csproj and comment out the Npgsql and uncomment the SQL Server package
+//if you would like to use the postgresql server, start docker and then run the autorun.sh or autrun.bat file in Database/Docker folder of this project. username and password details are in the docker file
+//!!IMPORTANT!!
+
 //US: DBA , PS: Capstone123 <- - this is the password for the database server
+// builder.Services.AddDbContextFactory<TeamTacticsDBContext>(options =>
+//     options.UseSqlServer(
+//         configuration.GetConnectionString("AzureSQLConnection")));
+
 builder.Services.AddDbContextFactory<TeamTacticsDBContext>(options =>
-    options.UseSqlServer(
-        configuration.GetConnectionString("DefaultConnection")));
+options.UseNpgsql(
+configuration.GetConnectionString("DefaultConnection"),
+npgsqlOptionsAction: npgsqlOptions =>
+{
+    npgsqlOptions.EnableRetryOnFailure(
+        maxRetryCount: 5,
+        maxRetryDelay: TimeSpan.FromSeconds(30),
+        errorCodesToAdd: null);
+}));
+
+//!!IMPORTANT!!
+//-------------------------------------------------------------
+
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<TeamTacticsDBContext>();
+
+//change cookie name
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "_auth";
+});
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyAllowSpecificOrigins",
     builder =>
     {
-        builder.WithOrigins("https://localhost:5173")
+        builder.WithOrigins("http://localhost:5173")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
     });
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdministratorRole",
+        policy => policy.RequireRole("Admin"));
+
+    options.AddPolicy("RequireCoachRole",
+        policy => policy.RequireRole("Coach"));
+
+    options.AddPolicy("RequireAssistantCoachRole",
+        policy => policy.RequireRole("AssistantCoach"));
+
+    options.AddPolicy("RequireAthleteRole",
+        policy => policy.RequireRole("Athlete"));
 });
 
 var app = builder.Build();
@@ -41,6 +83,7 @@ if (app.Environment.IsDevelopment())
     {
         var services = scope.ServiceProvider;
         var context = services.GetRequiredService<TeamTacticsDBContext>();
+        await CreateRoles(services);
         context.Database.EnsureCreated();
     }
     app.UseSwagger();
@@ -56,7 +99,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("MyAllowSpecificOrigins");
 
-
 app.MapIdentityApi<IdentityUser>();
 
 app.UseHttpsRedirection();
@@ -64,3 +106,19 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+
+//Add roles here
+static async Task CreateRoles(IServiceProvider serviceProvider)
+{
+    var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    string[] roleNames = { "Admin", "Coach", "AssistantCoach", "Athlete" };
+    foreach (var roleName in roleNames)
+    {
+        var roleExist = await RoleManager.RoleExistsAsync(roleName);
+        if (!roleExist)
+        {
+            await RoleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+}

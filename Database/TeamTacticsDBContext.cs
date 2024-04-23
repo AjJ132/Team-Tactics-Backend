@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Team_Tactics_Backend.Models.DB_Testing;
+using TeamTacticsBackend.Models.Users;
+using TeamTacticsBackend.Models.Teams;
+using TeamTacticsBackend.Models.CalendarEvents;
+using TeamTacticsBackend.Models.Messages;
 
-namespace Team_Tactics_Backend.Database
+namespace TeamTacticsBackend.Database
 {
     public class TeamTacticsDBContext : IdentityDbContext
     {
@@ -12,7 +15,21 @@ namespace Team_Tactics_Backend.Database
         {
         }
 
-        public virtual DbSet<DBTesting> DBTestings { get; set; }
+         public TeamTacticsDBContext()
+        {
+        }
+
+        public virtual DbSet<User> Users { get; set; }
+    
+        public virtual DbSet<Team> Teams { get; set; }
+
+        public virtual DbSet<CalendarEvent> CalendarEvents{get;set;}
+
+        public virtual DbSet<EventsAssigned> EventsAssigneds {get;set;}
+        public virtual DbSet<Conversation> Conversations{ get;set;}
+        public virtual DbSet<ConversationMessage> ConversationMessages { get;set;}
+        public virtual DbSet<ConversationUser> ConversationUsers { get;set;}
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

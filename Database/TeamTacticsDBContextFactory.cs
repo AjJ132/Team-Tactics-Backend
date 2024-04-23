@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Team_Tactics_Backend.Database
+namespace TeamTacticsBackend.Database
 {
     public class TeamTacticsDBContextFactory : IDbContextFactory<TeamTacticsDBContext>
     {
