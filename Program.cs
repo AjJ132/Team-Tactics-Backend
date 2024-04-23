@@ -18,11 +18,12 @@ builder.Services.AddSwaggerGen();
 //!!IMPORTANT!!
 
 //US: DBA , PS: Capstone123 <- - this is the password for the database server
-// builder.Services.AddDbContextFactory<TeamTacticsDBContext>(options =>
-//     options.UseSqlServer(
-//         configuration.GetConnectionString("AzureSQLConnection")));
+ builder.Services.AddDbContextFactory<TeamTacticsDBContext>(options =>
+     options.UseSqlServer(
+         configuration.GetConnectionString("AzureSQLConnection")));
 
-builder.Services.AddDbContextFactory<TeamTacticsDBContext>(options =>
+/*
+ * builder.Services.AddDbContextFactory<TeamTacticsDBContext>(options =>
 options.UseNpgsql(
 configuration.GetConnectionString("DefaultConnection"),
 npgsqlOptionsAction: npgsqlOptions =>
@@ -32,6 +33,7 @@ npgsqlOptionsAction: npgsqlOptions =>
         maxRetryDelay: TimeSpan.FromSeconds(30),
         errorCodesToAdd: null);
 }));
+ */
 
 //!!IMPORTANT!!
 //-------------------------------------------------------------
@@ -83,8 +85,8 @@ if (app.Environment.IsDevelopment())
     {
         var services = scope.ServiceProvider;
         var context = services.GetRequiredService<TeamTacticsDBContext>();
-        await CreateRoles(services);
         context.Database.EnsureCreated();
+        await CreateRoles(services);
     }
     app.UseSwagger();
     app.UseSwaggerUI();
